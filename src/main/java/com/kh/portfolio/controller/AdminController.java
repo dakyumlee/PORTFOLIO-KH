@@ -27,8 +27,6 @@ public class AdminController {
     public String dashboard(Model model) {
         model.addAttribute("profile", portfolioService.getProfile());
         model.addAttribute("filmography", portfolioService.getAllFilmography());
-        model.addAttribute("gallery", portfolioService.getAllGallery());
-        model.addAttribute("videos", portfolioService.getAllVideos());
         return "admin/dashboard";
     }
 
@@ -61,7 +59,12 @@ public class AdminController {
 
     @GetMapping("/filmography/{id}")
     public String editFilmography(@PathVariable Long id, Model model) {
-        model.addAttribute("filmography", portfolioService.getFilmography(id));
+        Filmography film = portfolioService.getFilmography(id);
+        model.addAttribute("filmography", film);
+        model.addAttribute("awards", portfolioService.getAwardsByFilmography(id));
+        model.addAttribute("supports", portfolioService.getSupportsByFilmography(id));
+        model.addAttribute("galleries", portfolioService.getGalleriesByFilmography(id));
+        model.addAttribute("videos", portfolioService.getVideosByFilmography(id));
         return "admin/filmography-form";
     }
 
@@ -69,9 +72,9 @@ public class AdminController {
     public String saveFilmography(@ModelAttribute Filmography filmography,
                                  @RequestParam(required = false) MultipartFile posterImage,
                                  RedirectAttributes redirectAttributes) throws IOException {
-        portfolioService.saveFilmography(filmography, posterImage);
+        Filmography saved = portfolioService.saveFilmography(filmography, posterImage);
         redirectAttributes.addFlashAttribute("message", "필모그래피가 저장되었습니다.");
-        return "redirect:/admin/filmography";
+        return "redirect:/admin/filmography/" + saved.getId();
     }
 
     @PostMapping("/filmography/{id}/delete")
@@ -81,69 +84,72 @@ public class AdminController {
         return "redirect:/admin/filmography";
     }
 
-    @GetMapping("/gallery")
-    public String galleryList(Model model) {
-        model.addAttribute("gallery", portfolioService.getAllGallery());
-        return "admin/gallery-list";
+    @PostMapping("/filmography/{filmId}/awards")
+    public String saveAward(@PathVariable Long filmId, @ModelAttribute Award award, RedirectAttributes redirectAttributes) {
+        Filmography film = portfolioService.getFilmography(filmId);
+        award.setFilmography(film);
+        portfolioService.saveAward(award);
+        redirectAttributes.addFlashAttribute("message", "수상내역이 추가되었습니다.");
+        return "redirect:/admin/filmography/" + filmId;
     }
 
-    @GetMapping("/gallery/new")
-    public String newGallery(Model model) {
-        model.addAttribute("gallery", new Gallery());
-        return "admin/gallery-form";
+    @PostMapping("/filmography/{filmId}/awards/{awardId}/delete")
+    public String deleteAward(@PathVariable Long filmId, @PathVariable Long awardId, RedirectAttributes redirectAttributes) {
+        portfolioService.deleteAward(awardId);
+        redirectAttributes.addFlashAttribute("message", "수상내역이 삭제되었습니다.");
+        return "redirect:/admin/filmography/" + filmId;
     }
 
-    @GetMapping("/gallery/{id}")
-    public String editGallery(@PathVariable Long id, Model model) {
-        model.addAttribute("gallery", portfolioService.getGalleryItem(id));
-        return "admin/gallery-form";
-    }
-
-    @PostMapping("/gallery")
-    public String saveGallery(@ModelAttribute Gallery gallery,
-                             @RequestParam(required = false) MultipartFile galleryImage,
+    @PostMapping("/filmography/{filmId}/supports")
+    public String saveSupport(@PathVariable Long filmId, @ModelAttribute Support support,
+                             @RequestParam(required = false) MultipartFile documentFile,
                              RedirectAttributes redirectAttributes) throws IOException {
-        portfolioService.saveGallery(gallery, galleryImage);
-        redirectAttributes.addFlashAttribute("message", "갤러리 항목이 저장되었습니다.");
-        return "redirect:/admin/gallery";
+        Filmography film = portfolioService.getFilmography(filmId);
+        support.setFilmography(film);
+        portfolioService.saveSupport(support, documentFile);
+        redirectAttributes.addFlashAttribute("message", "협조기관이 추가되었습니다.");
+        return "redirect:/admin/filmography/" + filmId;
     }
 
-    @PostMapping("/gallery/{id}/delete")
-    public String deleteGallery(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        portfolioService.deleteGallery(id);
-        redirectAttributes.addFlashAttribute("message", "갤러리 항목이 삭제되었습니다.");
-        return "redirect:/admin/gallery";
+    @PostMapping("/filmography/{filmId}/supports/{supportId}/delete")
+    public String deleteSupport(@PathVariable Long filmId, @PathVariable Long supportId, RedirectAttributes redirectAttributes) {
+        portfolioService.deleteSupport(supportId);
+        redirectAttributes.addFlashAttribute("message", "협조기관이 삭제되었습니다.");
+        return "redirect:/admin/filmography/" + filmId;
     }
 
-    @GetMapping("/videos")
-    public String videoList(Model model) {
-        model.addAttribute("videos", portfolioService.getAllVideos());
-        return "admin/video-list";
+    @PostMapping("/filmography/{filmId}/galleries")
+    public String saveFilmGallery(@PathVariable Long filmId,
+                                  @RequestParam(required = false) String caption,
+                                  @RequestParam MultipartFile galleryImage,
+                                  RedirectAttributes redirectAttributes) throws IOException {
+        Filmography film = portfolioService.getFilmography(filmId);
+        FilmGallery gallery = FilmGallery.builder().filmography(film).caption(caption).build();
+        portfolioService.saveFilmGallery(gallery, galleryImage);
+        redirectAttributes.addFlashAttribute("message", "스틸컷이 추가되었습니다.");
+        return "redirect:/admin/filmography/" + filmId;
     }
 
-    @GetMapping("/videos/new")
-    public String newVideo(Model model) {
-        model.addAttribute("video", new Video());
-        return "admin/video-form";
+    @PostMapping("/filmography/{filmId}/galleries/{galleryId}/delete")
+    public String deleteFilmGallery(@PathVariable Long filmId, @PathVariable Long galleryId, RedirectAttributes redirectAttributes) {
+        portfolioService.deleteFilmGallery(galleryId);
+        redirectAttributes.addFlashAttribute("message", "스틸컷이 삭제되었습니다.");
+        return "redirect:/admin/filmography/" + filmId;
     }
 
-    @GetMapping("/videos/{id}")
-    public String editVideo(@PathVariable Long id, Model model) {
-        model.addAttribute("video", portfolioService.getVideo(id));
-        return "admin/video-form";
+    @PostMapping("/filmography/{filmId}/videos")
+    public String saveFilmVideo(@PathVariable Long filmId, @ModelAttribute FilmVideo video, RedirectAttributes redirectAttributes) {
+        Filmography film = portfolioService.getFilmography(filmId);
+        video.setFilmography(film);
+        portfolioService.saveFilmVideo(video);
+        redirectAttributes.addFlashAttribute("message", "비디오가 추가되었습니다.");
+        return "redirect:/admin/filmography/" + filmId;
     }
 
-    @PostMapping("/videos")
-    public String saveVideo(@ModelAttribute Video video, RedirectAttributes redirectAttributes) {
-        portfolioService.saveVideo(video);
-        redirectAttributes.addFlashAttribute("message", "영상이 저장되었습니다.");
-        return "redirect:/admin/videos";
-    }
-
-    @PostMapping("/videos/{id}/delete")
-    public String deleteVideo(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        portfolioService.deleteVideo(id);
-        redirectAttributes.addFlashAttribute("message", "영상이 삭제되었습니다.");
-        return "redirect:/admin/videos";
+    @PostMapping("/filmography/{filmId}/videos/{videoId}/delete")
+    public String deleteFilmVideo(@PathVariable Long filmId, @PathVariable Long videoId, RedirectAttributes redirectAttributes) {
+        portfolioService.deleteFilmVideo(videoId);
+        redirectAttributes.addFlashAttribute("message", "비디오가 삭제되었습니다.");
+        return "redirect:/admin/filmography/" + filmId;
     }
 }

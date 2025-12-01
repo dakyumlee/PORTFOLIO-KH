@@ -16,8 +16,10 @@ public class MainController {
     public String index(Model model) {
         model.addAttribute("profile", portfolioService.getProfile());
         model.addAttribute("filmography", portfolioService.getAllFilmography());
-        model.addAttribute("gallery", portfolioService.getAllGallery());
+        model.addAttribute("gallery", portfolioService.getAllGalleries());
         model.addAttribute("videos", portfolioService.getAllVideos());
+        model.addAttribute("mainAwards", portfolioService.getMainAwards());
+        
         return "index";
     }
 }

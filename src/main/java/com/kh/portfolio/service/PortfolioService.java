@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,8 +18,10 @@ public class PortfolioService {
 
     private final ProfileRepository profileRepository;
     private final FilmographyRepository filmographyRepository;
-    private final GalleryRepository galleryRepository;
-    private final VideoRepository videoRepository;
+    private final AwardRepository awardRepository;
+    private final SupportRepository supportRepository;
+    private final FilmGalleryRepository filmGalleryRepository;
+    private final FilmVideoRepository filmVideoRepository;
     private final CloudinaryService cloudinaryService;
 
     public Profile getProfile() {
@@ -74,15 +75,55 @@ public class PortfolioService {
         filmographyRepository.deleteById(id);
     }
 
-    public List<Gallery> getAllGallery() {
-        return galleryRepository.findAllByOrderByDisplayOrderAsc();
+    public List<Award> getAwardsByFilmography(Long filmographyId) {
+        return awardRepository.findByFilmographyIdOrderByYearDesc(filmographyId);
     }
 
-    public Gallery getGalleryItem(Long id) {
-        return galleryRepository.findById(id).orElse(null);
+    public List<Award> getMainAwards() {
+        return awardRepository.findByIsMainDisplayedTrueOrderByYearDesc();
     }
 
-    public Gallery saveGallery(Gallery gallery, MultipartFile image) throws IOException {
+    public Award saveAward(Award award) {
+        if (award.getIsMainDisplayed() == null) {
+            award.setIsMainDisplayed(false);
+        }
+        return awardRepository.save(award);
+    }
+
+    public void deleteAward(Long id) {
+        awardRepository.deleteById(id);
+    }
+
+    public List<Support> getSupportsByFilmography(Long filmographyId) {
+        return supportRepository.findByFilmographyId(filmographyId);
+    }
+
+    public Support saveSupport(Support support, MultipartFile document) throws IOException {
+        if (document != null && !document.isEmpty()) {
+            Map<String, Object> result = cloudinaryService.upload(document, "documents");
+            support.setDocumentUrl((String) result.get("secure_url"));
+            support.setHasDocument(true);
+        }
+        return supportRepository.save(support);
+    }
+
+    public void deleteSupport(Long id) {
+        supportRepository.deleteById(id);
+    }
+
+    public List<FilmGallery> getAllGalleries() {
+        return filmGalleryRepository.findAll();
+    }
+
+    public List<FilmVideo> getAllVideos() {
+        return filmVideoRepository.findAll();
+    }
+
+    public List<FilmGallery> getGalleriesByFilmography(Long filmographyId) {
+        return filmGalleryRepository.findByFilmographyIdOrderByDisplayOrderAsc(filmographyId);
+    }
+
+    public FilmGallery saveFilmGallery(FilmGallery gallery, MultipartFile image) throws IOException {
         if (image != null && !image.isEmpty()) {
             Map<String, Object> result = cloudinaryService.upload(image, "gallery");
             String imageUrl = (String) result.get("secure_url");
@@ -90,31 +131,27 @@ public class PortfolioService {
             gallery.setThumbnailUrl(cloudinaryService.getThumbnailUrl(imageUrl, 400, 400));
         }
         if (gallery.getDisplayOrder() == null) {
-            gallery.setDisplayOrder((int) galleryRepository.count());
+            gallery.setDisplayOrder((int) filmGalleryRepository.countByFilmographyId(gallery.getFilmography().getId()));
         }
-        return galleryRepository.save(gallery);
+        return filmGalleryRepository.save(gallery);
     }
 
-    public void deleteGallery(Long id) {
-        galleryRepository.deleteById(id);
+    public void deleteFilmGallery(Long id) {
+        filmGalleryRepository.deleteById(id);
     }
 
-    public List<Video> getAllVideos() {
-        return videoRepository.findAllByOrderByDisplayOrderAsc();
+    public List<FilmVideo> getVideosByFilmography(Long filmographyId) {
+        return filmVideoRepository.findByFilmographyIdOrderByDisplayOrderAsc(filmographyId);
     }
 
-    public Video getVideo(Long id) {
-        return videoRepository.findById(id).orElse(null);
-    }
-
-    public Video saveVideo(Video video) {
+    public FilmVideo saveFilmVideo(FilmVideo video) {
         if (video.getDisplayOrder() == null) {
-            video.setDisplayOrder((int) videoRepository.count());
+            video.setDisplayOrder((int) filmVideoRepository.countByFilmographyId(video.getFilmography().getId()));
         }
-        return videoRepository.save(video);
+        return filmVideoRepository.save(video);
     }
 
-    public void deleteVideo(Long id) {
-        videoRepository.deleteById(id);
+    public void deleteFilmVideo(Long id) {
+        filmVideoRepository.deleteById(id);
     }
 }

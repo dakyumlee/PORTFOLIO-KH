@@ -49,6 +49,20 @@
         <div class="hero-scroll">Scroll</div>
     </section>
 
+    <section id="featured-awards" th:if="${not #lists.isEmpty(mainAwards)}">
+        <div class="awards-container">
+            <h2 class="section-title">Awards</h2>
+            <ul class="awards-list">
+                <li th:each="award : ${mainAwards}">
+                    <span class="award-year" th:text="${award.year}">2024</span>
+                    <span class="award-festival" th:text="${award.festivalName}">영화제</span>
+                    <span class="award-name" th:text="${award.awardName}">상 이름</span>
+                    <span class="award-film" th:text="'— ' + ${award.filmography.title}">작품명</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
     <section id="filmography">
         <div class="filmography-container">
             <div class="section-header">
@@ -56,16 +70,25 @@
                 <h2 class="section-title">Filmography</h2>
             </div>
             <div class="film-grid" th:if="${not #lists.isEmpty(filmography)}">
-                <div class="film-card" th:each="film, iter : ${filmography}" 
-                     th:data-title="${film.title}"
-                     th:data-year="${film.year}"
-                     th:data-role="${film.role}"
-                     th:data-director="${film.director}"
-                     th:data-description="${film.description}"
-                     th:data-poster="${film.posterUrl}">
+                <div class="film-card" th:each="film : ${filmography}" 
+                        th:data-id="${film.id}"
+                        th:data-title="${film.title}"
+                        th:data-year="${film.year}"
+                        th:data-role="${film.role}"
+                        th:data-director="${film.director}"
+                        th:data-synopsis="${film.synopsis}"
+                        th:data-runtime="${film.runtime}"
+                        th:data-genre="${film.genre}"
+                        th:data-production="${film.productionType}"
+                        th:data-poster="${film.posterUrl}"
+                        th:data-awards="${film.awards != null ? #strings.listJoin(film.awards.![awardName + '::' + festivalName + '::' + year], '||') : ''}"
+                        th:data-supports="${film.supports != null ? #strings.listJoin(film.supports.![organizationName + '::' + supportType + '::' + (documentUrl ?: '')], '||') : ''}"
+                        th:data-film-galleries="${film.galleries != null ? #strings.listJoin(film.galleries.![imageUrl + '::' + (caption ?: '')], '||') : ''}"
+                        th:data-film-videos="${film.videos != null ? #strings.listJoin(film.videos.![title + '::' + youtubeId + '::' + (description ?: '')], '||') : ''}">
+                    
                     <div class="film-poster">
                         <img th:if="${film.posterUrl}" th:src="${film.posterUrl}" th:alt="${film.title}">
-                        <div th:unless="${film.posterUrl}" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#404040;">
+                        <div th:unless="${film.posterUrl}" class="film-poster-empty">
                             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
                                 <rect x="2" y="2" width="20" height="20" rx="2"></rect>
                                 <line x1="7" y1="2" x2="7" y2="22"></line>
@@ -74,6 +97,9 @@
                         </div>
                     </div>
                     <div class="film-overlay">
+                        <div class="film-badges">
+                            <span class="film-badge" th:if="${film.awards != null and !film.awards.isEmpty()}" th:text="'수상 ' + ${#lists.size(film.awards)}"></span>
+                        </div>
                         <h3 th:text="${film.title}">작품명</h3>
                         <p class="meta">
                             <span th:text="${film.year}">2025</span>
@@ -99,8 +125,8 @@
             <div class="gallery-grid" th:if="${not #lists.isEmpty(gallery)}">
                 <div class="gallery-item" th:each="item : ${gallery}" 
                      th:data-full="${item.imageUrl}"
-                     th:data-title="${item.title}">
-                    <img th:src="${item.thumbnailUrl ?: item.imageUrl}" th:alt="${item.title}">
+                     th:data-caption="${item.caption}">
+                    <img th:src="${item.thumbnailUrl ?: item.imageUrl}" th:alt="${item.caption}">
                 </div>
             </div>
             <div class="empty-state" th:if="${#lists.isEmpty(gallery)}">
@@ -164,8 +190,8 @@
     <footer>
         <div class="footer-content">
             <p class="footer-text">© 2025 <span th:text="${profile.name}">이기현</span>. oicrcutie - All rights reserved.</p>
-            <a href="/admin" class="admin-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <a href="/admin" class="admin-link" aria-label="Admin">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="3"></circle>
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                 </svg>
@@ -173,7 +199,6 @@
         </div>
     </footer>
 
-    <!-- Gallery Modal -->
     <div id="gallery-modal" class="modal">
         <div class="modal-close">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -187,7 +212,6 @@
         </div>
     </div>
 
-    <!-- Film Modal -->
     <div id="film-modal" class="modal">
         <div class="modal-close">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -199,20 +223,64 @@
             <div class="film-modal-poster">
                 <img id="film-modal-poster" src="" alt="">
             </div>
+
             <div class="film-modal-info">
-                <span id="film-modal-year" class="film-year"></span>
-                <h2 id="film-modal-title"></h2>
-                <div class="film-meta">
-                    <div class="film-meta-item" id="film-modal-director-wrap">
-                        <span class="film-meta-label">Director</span>
-                        <span id="film-modal-director" class="film-meta-value"></span>
-                    </div>
-                    <div class="film-meta-item" id="film-modal-role-wrap">
-                        <span class="film-meta-label">Role</span>
-                        <span id="film-modal-role" class="film-meta-value"></span>
+                
+                <div id="film-modal-awards" class="film-modal-section">
+                    <h4>수상 내역</h4>
+                    <ul id="film-modal-awards-list"></ul>
+                </div>
+
+                <div class="film-modal-section" id="film-modal-basic-info">
+                    <h2 id="film-modal-title"></h2>
+                    <div class="film-meta-grid">
+                        <div class="meta-item">
+                            <span class="label">Year</span>
+                            <span id="film-modal-year" class="value"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="label">Role</span>
+                            <span id="film-modal-role" class="value"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="label">Director</span>
+                            <span id="film-modal-director" class="value"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="label">Runtime</span>
+                            <span id="film-modal-runtime" class="value"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="label">Genre</span>
+                            <span id="film-modal-genre" class="value"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="label">Type</span>
+                            <span id="film-modal-production" class="value"></span>
+                        </div>
                     </div>
                 </div>
-                <p id="film-modal-description" class="film-description"></p>
+
+                <div id="film-modal-supports" class="film-modal-section">
+                    <h4>협조 기관</h4>
+                    <ul id="film-modal-supports-list"></ul>
+                </div>
+
+                <div id="film-modal-synopsis-section" class="film-modal-section">
+                    <h4>Synopsis</h4>
+                    <p id="film-modal-synopsis" class="film-description"></p>
+                </div>
+
+                <div id="film-modal-gallery-section" class="film-modal-section" style="display:none;">
+                    <h4>Gallery</h4>
+                    <div id="film-modal-gallery-grid" class="modal-gallery-grid"></div>
+                </div>
+
+                <div id="film-modal-video-section" class="film-modal-section" style="display:none;">
+                    <h4>Video</h4>
+                    <div id="film-modal-video-container" class="modal-video-container"></div>
+                </div>
+
             </div>
         </div>
     </div>

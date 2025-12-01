@@ -2,35 +2,28 @@ package com.kh.portfolio.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "gallery")
+@Table(name = "film_galleries")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Gallery {
+public class FilmGallery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "filmography_id", nullable = false)
+    private Filmography filmography;
 
     private String imageUrl;
 
     private String thumbnailUrl;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    private String caption;
 
     private Integer displayOrder;
-
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
 }

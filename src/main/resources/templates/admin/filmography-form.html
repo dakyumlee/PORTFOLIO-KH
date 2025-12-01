@@ -16,40 +16,168 @@
                 <li><a href="/admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>Dashboard</a></li>
                 <li><a href="/admin/profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>Profile</a></li>
                 <li><a href="/admin/filmography" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line></svg>Filmography</a></li>
-                <li><a href="/admin/gallery"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>Gallery</a></li>
-                <li><a href="/admin/videos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2"></rect></svg>Videos</a></li>
                 <li><a href="/" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>View Site</a></li>
                 <li><a href="/admin/logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Logout</a></li>
             </ul>
         </aside>
         <main class="admin-main">
-            <div class="admin-header"><h1 th:text="${filmography.id != null ? 'Edit Filmography' : 'New Filmography'}"></h1></div>
+            <div class="admin-header"><h1 th:text="${filmography.id != null ? filmography.title + ' 편집' : '새 필모그래피'}"></h1></div>
+            <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
             <form th:action="@{/admin/filmography}" method="post" enctype="multipart/form-data">
                 <input type="hidden" th:field="*{filmography.id}">
                 <input type="hidden" th:field="*{filmography.posterUrl}">
                 <input type="hidden" th:field="*{filmography.displayOrder}">
+
                 <div class="card">
-                    <h2 class="card-title">Details</h2>
-                    <div class="form-group"><label for="title">Title *</label><input type="text" id="title" name="title" class="form-control" th:value="${filmography.title}" required></div>
-                    <div class="form-group"><label for="year">Year</label><input type="text" id="year" name="year" class="form-control" th:value="${filmography.year}" placeholder="2024"></div>
-                    <div class="form-group"><label for="role">Role</label><input type="text" id="role" name="role" class="form-control" th:value="${filmography.role}" placeholder="감독, 촬영, 편집 등"></div>
-                    <div class="form-group"><label for="director">Director</label><input type="text" id="director" name="director" class="form-control" th:value="${filmography.director}"></div>
-                    <div class="form-group"><label for="description">Description</label><textarea id="description" name="description" class="form-control" th:text="${filmography.description}"></textarea></div>
+                    <h2 class="card-title">기본 정보</h2>
+                    <div class="form-row">
+                        <div class="form-group"><label>제목 *</label><input type="text" name="title" class="form-control" th:value="${filmography.title}" required></div>
+                        <div class="form-group"><label>연도</label><input type="text" name="year" class="form-control" th:value="${filmography.year}" placeholder="2024"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>역할</label><input type="text" name="role" class="form-control" th:value="${filmography.role}" placeholder="감독, 촬영, 편집 등"></div>
+                        <div class="form-group"><label>감독</label><input type="text" name="director" class="form-control" th:value="${filmography.director}"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>런타임</label><input type="text" name="runtime" class="form-control" th:value="${filmography.runtime}" placeholder="15분"></div>
+                        <div class="form-group"><label>장르</label><input type="text" name="genre" class="form-control" th:value="${filmography.genre}" placeholder="드라마, 다큐멘터리 등"></div>
+                    </div>
+                    <div class="form-group"><label>제작 형태</label><input type="text" name="productionType" class="form-control" th:value="${filmography.productionType}" placeholder="독립영화, 학교 프로젝트, 상업영화 등"></div>
                 </div>
+
                 <div class="card">
-                    <h2 class="card-title">Poster</h2>
+                    <h2 class="card-title">포스터</h2>
                     <div class="form-group">
-                        <label for="posterImage">Upload</label>
-                        <input type="file" id="posterImage" name="posterImage" class="form-control" accept="image/*">
-                        <p class="form-hint">Recommended: 2:3 ratio</p>
+                        <input type="file" name="posterImage" class="form-control" accept="image/*">
+                        <p class="form-hint">권장: 2:3 비율</p>
                         <div th:if="${filmography.posterUrl}" class="current-image"><img th:src="${filmography.posterUrl}" alt=""></div>
                     </div>
                 </div>
-                <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                    <a href="/admin/filmography" class="btn">Cancel</a>
+
+                <div class="card">
+                    <h2 class="card-title">시놉시스</h2>
+                    <div class="form-group"><label>작품 설명</label><textarea name="synopsis" class="form-control" rows="4" th:text="${filmography.synopsis}" placeholder="작품에 대한 설명..."></textarea></div>
+                    <div class="form-group"><label>역할 설명 (선택)</label><textarea name="roleDescription" class="form-control" rows="3" th:text="${filmography.roleDescription}" placeholder="맡은 역할에 대한 구체적인 설명..."></textarea></div>
+                </div>
+
+                <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px;">
+                    <button type="submit" class="btn btn-primary">저장</button>
+                    <a href="/admin/filmography" class="btn">목록으로</a>
                 </div>
             </form>
+
+            <th:block th:if="${filmography.id != null}">
+                <div class="card">
+                    <h2 class="card-title">① 수상 내역</h2>
+                    <div class="sub-list" th:if="${awards != null and !awards.isEmpty()}">
+                        <div class="sub-item" th:each="award : ${awards}">
+                            <div class="sub-item-info">
+                                <span th:if="${award.isMainDisplayed}" class="badge badge-award">MAIN</span>
+                                <strong th:text="${award.awardName}"></strong>
+                                <span th:text="${award.festivalName} + ' (' + ${award.year} + ')'"></span>
+                                <span th:if="${award.description}" class="sub-desc" th:text="${award.description}"></span>
+                            </div>
+                            <form th:action="@{/admin/filmography/{fid}/awards/{aid}/delete(fid=${filmography.id}, aid=${award.id})}" method="post" onsubmit="return confirm('삭제?');"><button type="submit" class="btn btn-sm btn-danger">삭제</button></form>
+                        </div>
+                    </div>
+                    <div th:if="${awards == null or awards.isEmpty()}" class="empty-hint">등록된 수상 내역이 없습니다.</div>
+                    <div class="sub-form">
+                        <form th:action="@{/admin/filmography/{id}/awards(id=${filmography.id})}" method="post">
+                            <div class="form-row">
+                                <div class="form-group"><label>상 이름 *</label><input type="text" name="awardName" class="form-control" required placeholder="최우수작품상"></div>
+                                <div class="form-group"><label>영화제</label><input type="text" name="festivalName" class="form-control" placeholder="부산국제영화제"></div>
+                                <div class="form-group"><label>연도</label><input type="text" name="year" class="form-control" placeholder="2024"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>설명 (선택)</label>
+                                <input type="text" name="description" class="form-control" placeholder="수상 관련 추가 설명">
+                            </div>
+                            <div class="form-group">
+                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                    <input type="checkbox" name="isMainDisplayed" value="true"> 메인 화면(Awards 섹션)에 노출
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary">수상 추가</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">② 협조 기관 및 공문</h2>
+                    <div class="sub-list" th:if="${supports != null and !supports.isEmpty()}">
+                        <div class="sub-item" th:each="support : ${supports}">
+                            <div class="sub-item-info">
+                                <strong th:text="${support.organizationName}"></strong>
+                                <span th:text="${support.supportType}"></span>
+                                <a th:if="${support.hasDocument}" th:href="${support.documentUrl}" target="_blank" class="doc-link">공문 보기</a>
+                            </div>
+                            <form th:action="@{/admin/filmography/{fid}/supports/{sid}/delete(fid=${filmography.id}, sid=${support.id})}" method="post" onsubmit="return confirm('삭제?');"><button type="submit" class="btn btn-sm btn-danger">삭제</button></form>
+                        </div>
+                    </div>
+                    <div th:if="${supports == null or supports.isEmpty()}" class="empty-hint">등록된 협조 기관이 없습니다.</div>
+                    <div class="sub-form">
+                        <form th:action="@{/admin/filmography/{id}/supports(id=${filmography.id})}" method="post" enctype="multipart/form-data">
+                            <div class="form-row">
+                                <div class="form-group"><label>기관명 *</label><input type="text" name="organizationName" class="form-control" required placeholder="서울시청"></div>
+                                <div class="form-group"><label>협조 내용</label><input type="text" name="supportType" class="form-control" placeholder="촬영 협조, 장비 지원 등"></div>
+                            </div>
+                            <div class="form-group"><label>공문 파일</label><input type="file" name="documentFile" class="form-control" accept=".pdf,.jpg,.jpeg,.png"></div>
+                            <button type="submit" class="btn btn-sm btn-primary">협조 추가</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">③ 스틸컷 / 갤러리</h2>
+                    <div class="gallery-grid-admin" th:if="${galleries != null and !galleries.isEmpty()}">
+                        <div class="gallery-item-admin" th:each="g : ${galleries}">
+                            <img th:src="${g.thumbnailUrl ?: g.imageUrl}" alt="">
+                            <div class="gallery-item-overlay">
+                                <span th:if="${g.caption}" th:text="${g.caption}"></span>
+                                <form th:action="@{/admin/filmography/{fid}/galleries/{gid}/delete(fid=${filmography.id}, gid=${g.id})}" method="post" onsubmit="return confirm('삭제?');"><button type="submit" class="btn btn-sm btn-danger">삭제</button></form>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${galleries == null or galleries.isEmpty()}" class="empty-hint">등록된 스틸컷이 없습니다.</div>
+                    <div class="sub-form">
+                        <form th:action="@{/admin/filmography/{id}/galleries(id=${filmography.id})}" method="post" enctype="multipart/form-data">
+                            <div class="form-row">
+                                <div class="form-group"><label>이미지 *</label><input type="file" name="galleryImage" class="form-control" accept="image/*" required></div>
+                                <div class="form-group"><label>캡션 (선택)</label><input type="text" name="caption" class="form-control" placeholder="이미지 설명"></div>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary">스틸컷 추가</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">④ 비디오 / 예고편</h2>
+                    <div class="sub-list" th:if="${videos != null and !videos.isEmpty()}">
+                        <div class="sub-item video-item-admin" th:each="v : ${videos}">
+                            <div class="video-thumb" th:if="${v.youtubeId}">
+                                <img th:src="'https://img.youtube.com/vi/' + ${v.youtubeId} + '/mqdefault.jpg'" alt="">
+                            </div>
+                            <div class="sub-item-info">
+                                <strong th:text="${v.title}"></strong>
+                                <span th:text="${v.youtubeUrl}"></span>
+                            </div>
+                            <form th:action="@{/admin/filmography/{fid}/videos/{vid}/delete(fid=${filmography.id}, vid=${v.id})}" method="post" onsubmit="return confirm('삭제?');"><button type="submit" class="btn btn-sm btn-danger">삭제</button></form>
+                        </div>
+                    </div>
+                    <div th:if="${videos == null or videos.isEmpty()}" class="empty-hint">등록된 비디오가 없습니다.</div>
+                    <div class="sub-form">
+                        <form th:action="@{/admin/filmography/{id}/videos(id=${filmography.id})}" method="post">
+                            <div class="form-row">
+                                <div class="form-group"><label>제목 *</label><input type="text" name="title" class="form-control" required placeholder="예고편"></div>
+                                <div class="form-group"><label>YouTube URL *</label><input type="text" name="youtubeUrl" class="form-control" required placeholder="https://youtube.com/watch?v=..."></div>
+                            </div>
+                            <div class="form-group"><label>설명 (선택)</label><input type="text" name="description" class="form-control" placeholder="영상 설명"></div>
+                            <button type="submit" class="btn btn-sm btn-primary">비디오 추가</button>
+                        </form>
+                    </div>
+                </div>
+            </th:block>
         </main>
     </div>
     <script>function toggleSidebar(){document.querySelector('.admin-sidebar').classList.toggle('active');document.querySelector('.admin-hamburger').classList.toggle('active');}</script>
