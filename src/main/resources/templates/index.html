@@ -49,20 +49,6 @@
         <div class="hero-scroll">Scroll</div>
     </section>
 
-    <section id="featured-awards" th:if="${not #lists.isEmpty(mainAwards)}">
-        <div class="awards-container">
-            <h2 class="section-title">Awards</h2>
-            <ul class="awards-list">
-                <li th:each="award : ${mainAwards}">
-                    <span class="award-year" th:text="${award.year}">2024</span>
-                    <span class="award-festival" th:text="${award.festivalName}">영화제</span>
-                    <span class="award-name" th:text="${award.awardName}">상 이름</span>
-                    <span class="award-film" th:text="'— ' + ${award.filmography.title}">작품명</span>
-                </li>
-            </ul>
-        </div>
-    </section>
-
     <section id="filmography">
         <div class="filmography-container">
             <div class="section-header">
@@ -116,6 +102,20 @@
         </div>
     </section>
 
+    <section id="featured-awards" th:if="${not #lists.isEmpty(mainAwards)}">
+        <div class="awards-container">
+            <h2 class="section-title">Awards</h2>
+            <ul class="awards-list">
+                <li th:each="award : ${mainAwards}">
+                    <span class="award-year" th:text="${award.year}">2024</span>
+                    <span class="award-festival" th:text="${award.festivalName}">영화제</span>
+                    <span class="award-name" th:text="${award.awardName}">상 이름</span>
+                    <span class="award-film" th:text="'— ' + ${award.filmography.title}">작품명</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
     <section id="gallery">
         <div class="gallery-container">
             <div class="section-header">
@@ -124,8 +124,8 @@
             </div>
             <div class="gallery-grid" th:if="${not #lists.isEmpty(gallery)}">
                 <div class="gallery-item" th:each="item : ${gallery}" 
-                     th:data-full="${item.imageUrl}"
-                     th:data-caption="${item.caption}">
+                    th:data-full="${item.imageUrl}"
+                    th:data-caption="${item.caption}">
                     <img th:src="${item.thumbnailUrl ?: item.imageUrl}" th:alt="${item.caption}">
                 </div>
             </div>
