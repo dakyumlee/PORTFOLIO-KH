@@ -1166,3 +1166,86 @@ a {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+.project-card-poster {
+    width: 100%;
+    aspect-ratio: 2/3;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.project-card-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.project-card-body {
+    flex: 1;
+}
+
+.upcoming-item-poster {
+    width: 48px;
+    height: 72px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.upcoming-item-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.project-list-item {
+    display: flex;
+    gap: 16px;
+}
+
+.project-list-poster {
+    width: 80px;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.project-list-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.project-list-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.detail-poster {
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 2/3;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+}
+
+.detail-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .project-list-poster {
+        width: 60px;
+        height: 90px;
+    }
+    
+    .detail-poster {
+        max-width: 200px;
+    }
+}

@@ -59,6 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
             let html = '';
             data.activeProjects.forEach(p => {
                 html += '<div class="project-card" data-id="' + p.id + '">';
+                if (p.posterUrl) {
+                    html += '<div class="project-card-poster"><img src="' + p.posterUrl + '" alt="' + p.title + '"></div>';
+                }
+                html += '<div class="project-card-body">';
                 html += '<div class="project-card-header"><div>';
                 html += '<div class="project-card-title">' + p.title + '</div>';
                 html += '<div class="project-card-tags">';
@@ -68,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (p.status) html += '<span class="status-badge ' + p.status.toLowerCase() + '">' + formatStatus(p.status) + '</span>';
                 html += '</div>';
                 html += '<p class="project-card-desc">' + (p.synopsis || '') + '</p>';
-                html += '</div>';
+                html += '</div></div>';
             });
             activeContainer.innerHTML = html;
         } else {
@@ -79,6 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
             let html = '';
             data.upcomingProjects.forEach(p => {
                 html += '<div class="upcoming-item">';
+                if (p.posterUrl) {
+                    html += '<div class="upcoming-item-poster"><img src="' + p.posterUrl + '" alt="' + p.title + '"></div>';
+                }
                 html += '<span class="upcoming-item-title">' + p.title + '</span>';
                 html += '<span class="upcoming-item-meta">' + (p.format || '') + ' ' + (p.year || '') + '</span>';
                 html += '</div>';
@@ -97,6 +104,10 @@ document.addEventListener('DOMContentLoaded', () => {
             let html = '';
             data.projects.forEach(p => {
                 html += '<div class="project-list-item" data-id="' + p.id + '">';
+                if (p.posterUrl) {
+                    html += '<div class="project-list-poster"><img src="' + p.posterUrl + '" alt="' + p.title + '"></div>';
+                }
+                html += '<div class="project-list-info">';
                 html += '<div class="project-list-header">';
                 html += '<span class="project-list-title">' + p.title + '</span>';
                 html += '<span class="project-list-year">' + (p.year || '') + '</span>';
@@ -105,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 html += '<div class="project-list-tags">';
                 if (p.format) html += '<span class="small-tag">' + p.format + '</span>';
                 if (p.genre) html += '<span class="small-tag">' + p.genre + '</span>';
-                html += '</div></div>';
+                html += '</div></div></div>';
             });
             listContainer.innerHTML = html;
 
@@ -119,8 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (response.ok) {
                             const project = await response.json();
                             renderProjectDetail(project);
-                        } else {
-                            console.error('Failed to load project');
                         }
                     } catch (err) {
                         console.error('Error:', err);
@@ -138,6 +147,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('project-detail');
         
         let html = '<div class="detail-content">';
+        
+        if (project.posterUrl) {
+            html += '<div class="detail-poster"><img src="' + project.posterUrl + '" alt="' + project.title + '"></div>';
+        }
+        
         html += '<div class="detail-header">';
         html += '<h3 class="detail-title">' + (project.title || '') + '</h3>';
         if (project.titleEn) html += '<p class="detail-title-en">' + project.titleEn + '</p>';
@@ -174,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 html += '<div class="support-item">';
                 html += '<span class="support-org">' + s.organizationName + '</span>';
                 if (s.supportDetail) html += '<span class="support-detail">' + s.supportDetail + '</span>';
-                if (s.documentUrl) html += '<a href="' + s.documentUrl + '" target="_blank" class="support-link">문서 보기</a>';
+                if (s.documentUrl) html += '<a href="' + s.documentUrl + '" target="_blank" class="support-link">문서</a>';
                 if (s.documentLink) html += '<a href="' + s.documentLink + '" target="_blank" class="support-link">링크</a>';
                 html += '</div>';
             });
