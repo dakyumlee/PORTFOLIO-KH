@@ -14,6 +14,12 @@ public interface FilmographyRepository extends JpaRepository<Filmography, Long> 
     List<Filmography> findByStatusIn(List<String> statuses);
     List<Filmography> findByStatusInOrderByYearDesc(List<String> statuses);
 
-    @Query("SELECT f FROM Filmography f LEFT JOIN FETCH f.supports LEFT JOIN FETCH f.galleries LEFT JOIN FETCH f.videos WHERE f.id = :id")
-    Optional<Filmography> findByIdWithDetails(@Param("id") Long id);
+    @Query("SELECT DISTINCT f FROM Filmography f LEFT JOIN FETCH f.supports WHERE f.id = :id")
+    Optional<Filmography> findByIdWithSupports(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT f FROM Filmography f LEFT JOIN FETCH f.galleries WHERE f.id = :id")
+    Optional<Filmography> findByIdWithGalleries(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT f FROM Filmography f LEFT JOIN FETCH f.videos WHERE f.id = :id")
+    Optional<Filmography> findByIdWithVideos(@Param("id") Long id);
 }

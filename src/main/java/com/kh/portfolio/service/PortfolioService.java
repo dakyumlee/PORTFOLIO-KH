@@ -80,8 +80,15 @@ public class PortfolioService {
         return filmographyRepository.findById(id).orElse(null);
     }
 
+    @Transactional(readOnly = true)
     public Filmography getFilmographyWithDetails(Long id) {
-        return filmographyRepository.findByIdWithDetails(id).orElse(null);
+        Filmography film = filmographyRepository.findById(id).orElse(null);
+        if (film != null) {
+            film.getSupports().size();
+            film.getGalleries().size();
+            film.getVideos().size();
+        }
+        return film;
     }
 
     public void saveFilmography(Filmography filmography, MultipartFile posterFile) throws IOException {

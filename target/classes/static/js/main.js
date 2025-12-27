@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (p.format) html += '<span class="tag format">' + p.format + '</span>';
                 if (p.role) html += '<span class="tag">' + p.role + '</span>';
                 html += '</div></div>';
-                html += '<span class="status-badge ' + p.status.toLowerCase() + '">' + formatStatus(p.status) + '</span>';
+                if (p.status) html += '<span class="status-badge ' + p.status.toLowerCase() + '">' + formatStatus(p.status) + '</span>';
                 html += '</div>';
                 html += '<p class="project-card-desc">' + (p.synopsis || '') + '</p>';
                 html += '</div>';
@@ -114,8 +114,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.querySelectorAll('.project-list-item').forEach(i => i.classList.remove('active'));
                     item.classList.add('active');
                     const projectId = item.dataset.id;
-                    const project = await fetch('/api/projects/' + projectId).then(r => r.json());
-                    renderProjectDetail(project);
+                    try {
+                        const response = await fetch('/api/projects/' + projectId);
+                        if (response.ok) {
+                            const project = await response.json();
+                            renderProjectDetail(project);
+                        } else {
+                            console.error('Failed to load project');
+                        }
+                    } catch (err) {
+                        console.error('Error:', err);
+                    }
                 });
             });
         } else {
@@ -130,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let html = '<div class="detail-content">';
         html += '<div class="detail-header">';
-        html += '<h3 class="detail-title">' + project.title + '</h3>';
+        html += '<h3 class="detail-title">' + (project.title || '') + '</h3>';
         if (project.titleEn) html += '<p class="detail-title-en">' + project.titleEn + '</p>';
         html += '<div class="detail-meta">';
         if (project.year) html += '<span>' + project.year + '</span>';
@@ -214,11 +223,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function extractYoutubeId(url) {
+        if (!url) return null;
         const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\?\/]+)/);
         return match ? match[1] : null;
     }
 
     function extractVimeoId(url) {
+        if (!url) return null;
         const match = url.match(/vimeo\.com\/(\d+)/);
         return match ? match[1] : null;
     }
@@ -370,6 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function formatStatus(status) {
+        if (!status) return '';
         const map = {
             'PREP': 'Prep',
             'SHOOTING': 'Shooting',
