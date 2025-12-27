@@ -1,5 +1,6 @@
 package com.kh.portfolio.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,5 +26,6 @@ public class Support {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "filmography_id")
+    @JsonIgnore
     private Filmography filmography;
 }
