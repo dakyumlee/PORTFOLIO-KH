@@ -80,6 +80,10 @@ public class PortfolioService {
         return filmographyRepository.findById(id).orElse(null);
     }
 
+    public Filmography getFilmographyWithDetails(Long id) {
+        return filmographyRepository.findByIdWithDetails(id).orElse(null);
+    }
+
     public void saveFilmography(Filmography filmography, MultipartFile posterFile) throws IOException {
         if (posterFile != null && !posterFile.isEmpty()) {
             String url = cloudinaryService.uploadImage(posterFile);

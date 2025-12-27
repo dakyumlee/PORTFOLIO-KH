@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -36,7 +35,7 @@ public class ApiController {
 
     @GetMapping("/projects/{id}")
     public ResponseEntity<Filmography> project(@PathVariable Long id) {
-        Filmography film = portfolioService.getFilmography(id);
+        Filmography film = portfolioService.getFilmographyWithDetails(id);
         if (film == null) {
             return ResponseEntity.notFound().build();
         }
