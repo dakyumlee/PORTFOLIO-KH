@@ -92,14 +92,35 @@ public class PortfolioService {
     }
 
     public void saveFilmography(Filmography filmography, MultipartFile posterFile) throws IOException {
+        if (filmography.getId() != null) {
+            Filmography existing = filmographyRepository.findById(filmography.getId()).orElse(null);
+            if (existing != null) {
+                existing.setTitle(filmography.getTitle());
+                existing.setTitleEn(filmography.getTitleEn());
+                existing.setYear(filmography.getYear());
+                existing.setRole(filmography.getRole());
+                existing.setRuntime(filmography.getRuntime());
+                existing.setGenre(filmography.getGenre());
+                existing.setFormat(filmography.getFormat());
+                existing.setStatus(filmography.getStatus());
+                existing.setDirector(filmography.getDirector());
+                existing.setSynopsis(filmography.getSynopsis());
+                existing.setHighlights(filmography.getHighlights());
+                existing.setDisplayOrder(filmography.getDisplayOrder());
+                
+                if (posterFile != null && !posterFile.isEmpty()) {
+                    String url = cloudinaryService.uploadImage(posterFile);
+                    existing.setPosterUrl(url);
+                }
+                
+                filmographyRepository.save(existing);
+                return;
+            }
+        }
+        
         if (posterFile != null && !posterFile.isEmpty()) {
             String url = cloudinaryService.uploadImage(posterFile);
             filmography.setPosterUrl(url);
-        } else if (filmography.getId() != null) {
-            Filmography existing = getFilmography(filmography.getId());
-            if (existing != null) {
-                filmography.setPosterUrl(existing.getPosterUrl());
-            }
         }
         filmographyRepository.save(filmography);
     }
