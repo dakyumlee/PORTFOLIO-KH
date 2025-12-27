@@ -1,7 +1,6 @@
 package com.kh.portfolio.controller;
 
 import com.kh.portfolio.entity.*;
-import com.kh.portfolio.service.CloudinaryService;
 import com.kh.portfolio.service.PortfolioService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,18 +9,15 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
 
     private final PortfolioService portfolioService;
-    private final CloudinaryService cloudinaryService;
 
-    public AdminController(PortfolioService portfolioService, CloudinaryService cloudinaryService) {
+    public AdminController(PortfolioService portfolioService) {
         this.portfolioService = portfolioService;
-        this.cloudinaryService = cloudinaryService;
     }
 
     private void addProfileToModel(Model model) {
@@ -132,7 +128,7 @@ public class AdminController {
             support.setFilmography(filmography);
 
             if (documentFile != null && !documentFile.isEmpty()) {
-                String url = cloudinaryService.upload(documentFile);
+                String url = portfolioService.uploadFile(documentFile);
                 support.setDocumentUrl(url);
             }
 
@@ -164,7 +160,7 @@ public class AdminController {
                 gallery.setFilmography(filmography);
                 gallery.setDisplayOrder(filmography.getGalleries().size() + 1);
 
-                String url = cloudinaryService.upload(imageFile);
+                String url = portfolioService.uploadFile(imageFile);
                 gallery.setImageUrl(url);
 
                 portfolioService.saveGallery(gallery);
