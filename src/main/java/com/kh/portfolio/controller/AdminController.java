@@ -104,7 +104,7 @@ public class AdminController {
     @GetMapping("/filmography/{id}/detail")
     public String filmographyDetail(@PathVariable Long id, Model model) {
         addProfileToModel(model);
-        Filmography filmography = portfolioService.getFilmography(id);
+        Filmography filmography = portfolioService.getFilmographyWithDetails(id);
         if (filmography == null) {
             return "redirect:/admin/filmography";
         }
@@ -120,22 +120,10 @@ public class AdminController {
                             @RequestParam(required = false) MultipartFile documentFile,
                             RedirectAttributes redirectAttributes) {
         try {
-            Filmography filmography = portfolioService.getFilmography(id);
-            Support support = new Support();
-            support.setOrganizationName(organizationName);
-            support.setSupportDetail(supportDetail);
-            support.setDocumentLink(documentLink);
-            support.setFilmography(filmography);
-
-            if (documentFile != null && !documentFile.isEmpty()) {
-                String url = portfolioService.uploadFile(documentFile);
-                support.setDocumentUrl(url);
-            }
-
-            portfolioService.saveSupport(support);
+            portfolioService.addSupportToFilmography(id, organizationName, supportDetail, documentLink, documentFile);
             redirectAttributes.addFlashAttribute("message", "협조 기관이 추가되었습니다.");
         } catch (IOException e) {
-            redirectAttributes.addFlashAttribute("error", "파일 업로드 실패");
+            redirectAttributes.addFlashAttribute("error", "파일 업로드 실패: " + e.getMessage());
         }
         return "redirect:/admin/filmography/" + id + "/detail";
     }
@@ -153,21 +141,10 @@ public class AdminController {
                             @RequestParam MultipartFile imageFile,
                             RedirectAttributes redirectAttributes) {
         try {
-            if (imageFile != null && !imageFile.isEmpty()) {
-                Filmography filmography = portfolioService.getFilmography(id);
-                FilmGallery gallery = new FilmGallery();
-                gallery.setCaption(caption);
-                gallery.setFilmography(filmography);
-                gallery.setDisplayOrder(filmography.getGalleries().size() + 1);
-
-                String url = portfolioService.uploadFile(imageFile);
-                gallery.setImageUrl(url);
-
-                portfolioService.saveGallery(gallery);
-                redirectAttributes.addFlashAttribute("message", "이미지가 추가되었습니다.");
-            }
+            portfolioService.addGalleryToFilmography(id, caption, imageFile);
+            redirectAttributes.addFlashAttribute("message", "이미지가 추가되었습니다.");
         } catch (IOException e) {
-            redirectAttributes.addFlashAttribute("error", "이미지 업로드 실패");
+            redirectAttributes.addFlashAttribute("error", "이미지 업로드 실패: " + e.getMessage());
         }
         return "redirect:/admin/filmography/" + id + "/detail";
     }
@@ -185,15 +162,7 @@ public class AdminController {
                           @RequestParam String videoUrl,
                           @RequestParam(required = false) String videoType,
                           RedirectAttributes redirectAttributes) {
-        Filmography filmography = portfolioService.getFilmography(id);
-        FilmVideo video = new FilmVideo();
-        video.setTitle(title);
-        video.setVideoUrl(videoUrl);
-        video.setVideoType(videoType != null ? videoType : "youtube");
-        video.setFilmography(filmography);
-        video.setDisplayOrder(filmography.getVideos().size() + 1);
-
-        portfolioService.saveVideo(video);
+        portfolioService.addVideoToFilmography(id, title, videoUrl, videoType);
         redirectAttributes.addFlashAttribute("message", "비디오가 추가되었습니다.");
         return "redirect:/admin/filmography/" + id + "/detail";
     }

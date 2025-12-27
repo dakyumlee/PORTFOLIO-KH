@@ -108,7 +108,19 @@ public class PortfolioService {
         filmographyRepository.deleteById(id);
     }
 
-    public void saveSupport(Support support) {
+    public void addSupportToFilmography(Long filmographyId, String orgName, String detail, String link, MultipartFile file) throws IOException {
+        Filmography film = filmographyRepository.findById(filmographyId).orElseThrow();
+        Support support = new Support();
+        support.setOrganizationName(orgName);
+        support.setSupportDetail(detail);
+        support.setDocumentLink(link);
+        support.setFilmography(film);
+        
+        if (file != null && !file.isEmpty()) {
+            String url = cloudinaryService.uploadImage(file);
+            support.setDocumentUrl(url);
+        }
+        
         supportRepository.save(support);
     }
 
@@ -116,7 +128,20 @@ public class PortfolioService {
         supportRepository.deleteById(id);
     }
 
-    public void saveGallery(FilmGallery gallery) {
+    public void addGalleryToFilmography(Long filmographyId, String caption, MultipartFile imageFile) throws IOException {
+        if (imageFile == null || imageFile.isEmpty()) {
+            throw new IOException("이미지 파일이 필요합니다.");
+        }
+        
+        Filmography film = filmographyRepository.findById(filmographyId).orElseThrow();
+        String url = cloudinaryService.uploadImage(imageFile);
+        
+        FilmGallery gallery = new FilmGallery();
+        gallery.setCaption(caption);
+        gallery.setImageUrl(url);
+        gallery.setFilmography(film);
+        gallery.setDisplayOrder(1);
+        
         filmGalleryRepository.save(gallery);
     }
 
@@ -124,7 +149,16 @@ public class PortfolioService {
         filmGalleryRepository.deleteById(id);
     }
 
-    public void saveVideo(FilmVideo video) {
+    public void addVideoToFilmography(Long filmographyId, String title, String videoUrl, String videoType) {
+        Filmography film = filmographyRepository.findById(filmographyId).orElseThrow();
+        
+        FilmVideo video = new FilmVideo();
+        video.setTitle(title);
+        video.setVideoUrl(videoUrl);
+        video.setVideoType(videoType != null ? videoType : "youtube");
+        video.setFilmography(film);
+        video.setDisplayOrder(1);
+        
         filmVideoRepository.save(video);
     }
 
