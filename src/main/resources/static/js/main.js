@@ -110,10 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.innerHTML = html;
 
             document.querySelectorAll('.project-list-item').forEach(item => {
-                item.addEventListener('click', () => {
+                item.addEventListener('click', async () => {
                     document.querySelectorAll('.project-list-item').forEach(i => i.classList.remove('active'));
                     item.classList.add('active');
-                    const project = data.projects.find(p => p.id == item.dataset.id);
+                    const projectId = item.dataset.id;
+                    const project = await fetch('/api/projects/' + projectId).then(r => r.json());
                     renderProjectDetail(project);
                 });
             });
@@ -130,22 +131,17 @@ document.addEventListener('DOMContentLoaded', () => {
         let html = '<div class="detail-content">';
         html += '<div class="detail-header">';
         html += '<h3 class="detail-title">' + project.title + '</h3>';
+        if (project.titleEn) html += '<p class="detail-title-en">' + project.titleEn + '</p>';
         html += '<div class="detail-meta">';
         if (project.year) html += '<span>' + project.year + '</span>';
         if (project.format) html += '<span>' + project.format + '</span>';
         if (project.runtime) html += '<span>' + project.runtime + '</span>';
+        if (project.genre) html += '<span>' + project.genre + '</span>';
         html += '</div>';
         html += '<div class="project-card-tags" style="margin-top: 14px;">';
         if (project.role) html += '<span class="tag">' + project.role + '</span>';
         if (project.status) html += '<span class="status-badge ' + project.status.toLowerCase() + '">' + formatStatus(project.status) + '</span>';
         html += '</div></div>';
-
-        if (project.synopsis) {
-            html += '<div class="detail-section">';
-            html += '<h4 class="detail-section-title">시놉시스</h4>';
-            html += '<p>' + project.synopsis + '</p>';
-            html += '</div>';
-        }
 
         if (project.director) {
             html += '<div class="detail-section">';
@@ -154,16 +150,90 @@ document.addEventListener('DOMContentLoaded', () => {
             html += '</div>';
         }
 
-        if (project.genre) {
+        if (project.synopsis) {
             html += '<div class="detail-section">';
-            html += '<h4 class="detail-section-title">장르</h4>';
-            html += '<p>' + project.genre + '</p>';
+            html += '<h4 class="detail-section-title">시놉시스</h4>';
+            html += '<p>' + project.synopsis + '</p>';
             html += '</div>';
+        }
+
+        if (project.supports && project.supports.length > 0) {
+            html += '<div class="detail-section">';
+            html += '<h4 class="detail-section-title">협조 기관</h4>';
+            html += '<div class="supports-list">';
+            project.supports.forEach(s => {
+                html += '<div class="support-item">';
+                html += '<span class="support-org">' + s.organizationName + '</span>';
+                if (s.supportDetail) html += '<span class="support-detail">' + s.supportDetail + '</span>';
+                if (s.documentUrl) html += '<a href="' + s.documentUrl + '" target="_blank" class="support-link">문서 보기</a>';
+                if (s.documentLink) html += '<a href="' + s.documentLink + '" target="_blank" class="support-link">링크</a>';
+                html += '</div>';
+            });
+            html += '</div></div>';
+        }
+
+        if (project.galleries && project.galleries.length > 0) {
+            html += '<div class="detail-section">';
+            html += '<h4 class="detail-section-title">갤러리</h4>';
+            html += '<div class="detail-gallery">';
+            project.galleries.forEach(g => {
+                html += '<div class="gallery-thumb" onclick="openLightbox(\'' + g.imageUrl + '\')">';
+                html += '<img src="' + g.imageUrl + '" alt="' + (g.caption || '') + '">';
+                html += '</div>';
+            });
+            html += '</div></div>';
+        }
+
+        if (project.videos && project.videos.length > 0) {
+            html += '<div class="detail-section">';
+            html += '<h4 class="detail-section-title">비디오</h4>';
+            html += '<div class="detail-videos">';
+            project.videos.forEach(v => {
+                html += '<div class="video-item">';
+                if (v.title) html += '<p class="video-title">' + v.title + '</p>';
+                if (v.videoType === 'youtube') {
+                    const videoId = extractYoutubeId(v.videoUrl);
+                    if (videoId) {
+                        html += '<div class="video-embed"><iframe src="https://www.youtube.com/embed/' + videoId + '" frameborder="0" allowfullscreen></iframe></div>';
+                    }
+                } else if (v.videoType === 'vimeo') {
+                    const vimeoId = extractVimeoId(v.videoUrl);
+                    if (vimeoId) {
+                        html += '<div class="video-embed"><iframe src="https://player.vimeo.com/video/' + vimeoId + '" frameborder="0" allowfullscreen></iframe></div>';
+                    }
+                } else {
+                    html += '<div class="video-embed"><video src="' + v.videoUrl + '" controls></video></div>';
+                }
+                html += '</div>';
+            });
+            html += '</div></div>';
         }
 
         html += '</div>';
         container.innerHTML = html;
     }
+
+    function extractYoutubeId(url) {
+        const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\?\/]+)/);
+        return match ? match[1] : null;
+    }
+
+    function extractVimeoId(url) {
+        const match = url.match(/vimeo\.com\/(\d+)/);
+        return match ? match[1] : null;
+    }
+
+    window.openLightbox = function(imageUrl) {
+        const lightbox = document.createElement('div');
+        lightbox.className = 'lightbox';
+        lightbox.innerHTML = '<div class="lightbox-content"><img src="' + imageUrl + '"><button class="lightbox-close">&times;</button></div>';
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox || e.target.classList.contains('lightbox-close')) {
+                lightbox.remove();
+            }
+        });
+        document.body.appendChild(lightbox);
+    };
 
     function renderProcess(data) {
         const container = document.getElementById('process-timeline');

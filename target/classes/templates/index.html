@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="이기현 - Film Producer Portfolio">
+    <meta name="description" th:content="${profile.tagline} ?: '이기현 - Film Producer Portfolio'">
     <meta name="theme-color" content="#0D0D0D">
+    <meta property="og:type" content="website">
+    <meta property="og:title" th:content="${profile.name} + ' | Producer'">
+    <meta property="og:description" th:content="${profile.tagline} ?: 'Film Producer Portfolio'">
+    <meta property="og:image" content="/images/favicon.png">
+    <meta property="og:url" th:content="@{/}">
+    <meta name="twitter:card" content="summary">
     <title th:text="${profile.name} + ' | Producer'">Portfolio</title>
     <link rel="icon" type="image/png" href="/images/favicon.png">
     <link rel="apple-touch-icon" href="/images/favicon.png">
     <link rel="manifest" href="/manifest.json">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -38,7 +41,7 @@
                     Process
                 </a>
                 <a href="#/notes" class="nav-item" data-page="notes">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
                     Notes
                 </a>
                 <a href="#/contact" class="nav-item" data-page="contact">
@@ -47,79 +50,65 @@
                 </a>
             </nav>
             <div class="sidebar-bottom">
-                <p class="tagline" th:text="${profile.tagline}">프레임 안에 감정을 담다</p>
-                <a href="/admin" class="admin-link">
+                <p class="tagline" th:text="${profile.tagline ?: '프레임 안에 감정을 담다'}">프레임 안에 감정을 담다</p>
+                <a href="/admin" class="admin-link" title="Admin">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 </a>
             </div>
         </aside>
-
-        <div class="mobile-header">
-            <div class="mobile-logo">KH</div>
-            <button class="hamburger" id="hamburger">
-                <span></span><span></span><span></span>
-            </button>
-        </div>
-
-        <main class="main-view" id="main-view">
-            <div class="page active" id="page-dashboard">
+        <header class="mobile-header">
+            <span class="mobile-logo" th:text="${profile.nameEn ?: 'LEE KI HYUN'}">LEE KI HYUN</span>
+            <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        </header>
+        <main class="main-view">
+            <section id="page-dashboard" class="page active">
                 <div class="page-header">
                     <h2>Dashboard</h2>
-                    <p class="page-desc">진행 중인 프로젝트와 상태 요약</p>
+                    <p class="page-desc">진행 중인 프로젝트 현황</p>
                 </div>
-                <section class="section">
+                <div class="section">
                     <h3 class="section-title">Active Projects</h3>
                     <div class="project-cards" id="active-projects"></div>
-                </section>
-                <section class="section">
-                    <h3 class="section-title">Upcoming</h3>
+                </div>
+                <div class="section">
+                    <h3 class="section-title">Released</h3>
                     <div class="upcoming-list" id="upcoming-projects"></div>
-                </section>
-            </div>
-
-            <div class="page" id="page-projects">
+                </div>
+            </section>
+            <section id="page-projects" class="page">
                 <div class="page-header">
                     <h2>Projects</h2>
-                    <p class="page-desc">선택된 제작 작업들</p>
+                    <p class="page-desc">전체 필모그래피</p>
                 </div>
                 <div class="projects-layout">
                     <div class="projects-list" id="projects-list"></div>
-                    <div class="project-detail" id="project-detail">
-                        <div class="detail-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                            <p>프로젝트를 선택하세요</p>
-                        </div>
-                    </div>
+                    <div class="project-detail" id="project-detail"></div>
                 </div>
-            </div>
-
-            <div class="page" id="page-process">
+            </section>
+            <section id="page-process" class="page">
                 <div class="page-header">
                     <h2>Process</h2>
-                    <p class="page-desc">제작 스타일과 접근 방식</p>
+                    <p class="page-desc">제작 프로세스</p>
                 </div>
                 <div class="timeline" id="process-timeline"></div>
-            </div>
-
-            <div class="page" id="page-notes">
+            </section>
+            <section id="page-notes" class="page">
                 <div class="page-header">
                     <h2>Notes</h2>
-                    <p class="page-desc">프로듀서의 기록</p>
+                    <p class="page-desc">프로듀서 노트</p>
                 </div>
                 <div class="notes-filter" id="notes-filter"></div>
                 <div class="notes-list" id="notes-list"></div>
-            </div>
-
-            <div class="page" id="page-contact">
+            </section>
+            <section id="page-contact" class="page">
                 <div class="page-header">
                     <h2>Contact</h2>
                     <p class="page-desc">연락처</p>
                 </div>
                 <div class="contact-content" id="contact-content"></div>
-            </div>
+            </section>
         </main>
     </div>
-
     <script src="/js/main.js"></script>
 </body>
 </html>
