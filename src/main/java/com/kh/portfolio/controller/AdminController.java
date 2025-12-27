@@ -1,6 +1,7 @@
 package com.kh.portfolio.controller;
 
 import com.kh.portfolio.entity.*;
+import com.kh.portfolio.service.CloudinaryService;
 import com.kh.portfolio.service.PortfolioService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,15 +10,18 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
 
     private final PortfolioService portfolioService;
+    private final CloudinaryService cloudinaryService;
 
-    public AdminController(PortfolioService portfolioService) {
+    public AdminController(PortfolioService portfolioService, CloudinaryService cloudinaryService) {
         this.portfolioService = portfolioService;
+        this.cloudinaryService = cloudinaryService;
     }
 
     private void addProfileToModel(Model model) {
@@ -99,6 +103,110 @@ public class AdminController {
         portfolioService.deleteFilmography(id);
         redirectAttributes.addFlashAttribute("message", "삭제되었습니다.");
         return "redirect:/admin/filmography";
+    }
+
+    @GetMapping("/filmography/{id}/detail")
+    public String filmographyDetail(@PathVariable Long id, Model model) {
+        addProfileToModel(model);
+        Filmography filmography = portfolioService.getFilmography(id);
+        if (filmography == null) {
+            return "redirect:/admin/filmography";
+        }
+        model.addAttribute("filmography", filmography);
+        return "admin/filmography-detail";
+    }
+
+    @PostMapping("/filmography/{id}/support")
+    public String addSupport(@PathVariable Long id,
+                            @RequestParam String organizationName,
+                            @RequestParam(required = false) String supportDetail,
+                            @RequestParam(required = false) String documentLink,
+                            @RequestParam(required = false) MultipartFile documentFile,
+                            RedirectAttributes redirectAttributes) {
+        try {
+            Filmography filmography = portfolioService.getFilmography(id);
+            Support support = new Support();
+            support.setOrganizationName(organizationName);
+            support.setSupportDetail(supportDetail);
+            support.setDocumentLink(documentLink);
+            support.setFilmography(filmography);
+
+            if (documentFile != null && !documentFile.isEmpty()) {
+                String url = cloudinaryService.upload(documentFile);
+                support.setDocumentUrl(url);
+            }
+
+            portfolioService.saveSupport(support);
+            redirectAttributes.addFlashAttribute("message", "협조 기관이 추가되었습니다.");
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("error", "파일 업로드 실패");
+        }
+        return "redirect:/admin/filmography/" + id + "/detail";
+    }
+
+    @PostMapping("/filmography/{filmId}/support/{supportId}/delete")
+    public String deleteSupport(@PathVariable Long filmId, @PathVariable Long supportId, RedirectAttributes redirectAttributes) {
+        portfolioService.deleteSupport(supportId);
+        redirectAttributes.addFlashAttribute("message", "삭제되었습니다.");
+        return "redirect:/admin/filmography/" + filmId + "/detail";
+    }
+
+    @PostMapping("/filmography/{id}/gallery")
+    public String addGallery(@PathVariable Long id,
+                            @RequestParam(required = false) String caption,
+                            @RequestParam MultipartFile imageFile,
+                            RedirectAttributes redirectAttributes) {
+        try {
+            if (imageFile != null && !imageFile.isEmpty()) {
+                Filmography filmography = portfolioService.getFilmography(id);
+                FilmGallery gallery = new FilmGallery();
+                gallery.setCaption(caption);
+                gallery.setFilmography(filmography);
+                gallery.setDisplayOrder(filmography.getGalleries().size() + 1);
+
+                String url = cloudinaryService.upload(imageFile);
+                gallery.setImageUrl(url);
+
+                portfolioService.saveGallery(gallery);
+                redirectAttributes.addFlashAttribute("message", "이미지가 추가되었습니다.");
+            }
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("error", "이미지 업로드 실패");
+        }
+        return "redirect:/admin/filmography/" + id + "/detail";
+    }
+
+    @PostMapping("/filmography/{filmId}/gallery/{galleryId}/delete")
+    public String deleteGallery(@PathVariable Long filmId, @PathVariable Long galleryId, RedirectAttributes redirectAttributes) {
+        portfolioService.deleteGallery(galleryId);
+        redirectAttributes.addFlashAttribute("message", "삭제되었습니다.");
+        return "redirect:/admin/filmography/" + filmId + "/detail";
+    }
+
+    @PostMapping("/filmography/{id}/video")
+    public String addVideo(@PathVariable Long id,
+                          @RequestParam(required = false) String title,
+                          @RequestParam String videoUrl,
+                          @RequestParam(required = false) String videoType,
+                          RedirectAttributes redirectAttributes) {
+        Filmography filmography = portfolioService.getFilmography(id);
+        FilmVideo video = new FilmVideo();
+        video.setTitle(title);
+        video.setVideoUrl(videoUrl);
+        video.setVideoType(videoType != null ? videoType : "youtube");
+        video.setFilmography(filmography);
+        video.setDisplayOrder(filmography.getVideos().size() + 1);
+
+        portfolioService.saveVideo(video);
+        redirectAttributes.addFlashAttribute("message", "비디오가 추가되었습니다.");
+        return "redirect:/admin/filmography/" + id + "/detail";
+    }
+
+    @PostMapping("/filmography/{filmId}/video/{videoId}/delete")
+    public String deleteVideo(@PathVariable Long filmId, @PathVariable Long videoId, RedirectAttributes redirectAttributes) {
+        portfolioService.deleteVideo(videoId);
+        redirectAttributes.addFlashAttribute("message", "삭제되었습니다.");
+        return "redirect:/admin/filmography/" + filmId + "/detail";
     }
 
     @GetMapping("/notes")

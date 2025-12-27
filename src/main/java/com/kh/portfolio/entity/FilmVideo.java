@@ -16,7 +16,8 @@ public class FilmVideo {
     private Long id;
 
     private String title;
-    private String youtubeUrl;
+    private String videoUrl;
+    private String videoType;
     private Integer displayOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)

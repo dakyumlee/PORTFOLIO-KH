@@ -1,14 +1,14 @@
 package com.kh.portfolio.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class FilmGallery {
 
     @Id
@@ -17,6 +17,7 @@ public class FilmGallery {
 
     private String imageUrl;
     private String caption;
+    private Integer displayOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "filmography_id")

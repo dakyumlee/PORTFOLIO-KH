@@ -15,8 +15,13 @@ public class Support {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-    private String logoUrl;
+    private String organizationName;
+
+    @Column(length = 1000)
+    private String supportDetail;
+
+    private String documentUrl;
+    private String documentLink;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "filmography_id")
